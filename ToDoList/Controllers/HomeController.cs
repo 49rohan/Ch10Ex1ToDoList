@@ -13,12 +13,13 @@ namespace ToDoList.Controllers
 
         public IActionResult Index(string id)
         {
+            var ToDoViewModel = new ToDoViewModel();
             // load current filters and data needed for filter drop downs in ViewBag
             var filters = new Filters(id);
-            ViewBag.Filters = filters;
-            ViewBag.Categories = context.Categories.ToList();
-            ViewBag.Statuses = context.Statuses.ToList();
-            ViewBag.DueFilters = Filters.DueFilterValues;
+            ToDoViewModel.Filters = filters;
+            ToDoViewModel.Categories = context.Categories.ToList();
+            ToDoViewModel.Statuses = context.Statuses.ToList();
+            ToDoViewModel.DueFilters = Filters.DueFilterValues;
 
             // get ToDo objects from database based on current filters
             IQueryable<ToDo> query = context.ToDos
@@ -38,8 +39,10 @@ namespace ToDoList.Controllers
                 else if (filters.IsToday)
                     query = query.Where(t => t.DueDate == today);
             }
-            var tasks = query.OrderBy(t => t.DueDate).ToList();
-            return View(tasks);
+            ToDoViewModel.Tasks = query.OrderBy(t => t.DueDate).ToList();
+
+            // Pass the view model to the view
+            return View(ToDoViewModel);
         }
 
         public IActionResult Add()
